@@ -203,6 +203,59 @@
         ]
       }
     </script>
+
+    <!-- Website Protection Script -->
+    <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // Disable key combinations
+      document.addEventListener('keydown', function(e) {
+        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S, Ctrl+A, Ctrl+P
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || 
+                          e.key === 'a' || e.key === 'A' || e.key === 'p' || e.key === 'P'))) {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      // Disable text selection
+      document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // Disable drag
+      document.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // Detect DevTools
+      let devtools = {open: false, orientation: null};
+      const threshold = 160;
+
+      setInterval(function() {
+        if (window.outerHeight - window.innerHeight > threshold || 
+            window.outerWidth - window.innerWidth > threshold) {
+          if (!devtools.open) {
+            devtools.open = true;
+            document.body.innerHTML = '<div style="background: #000; color: #fff; text-align: center; padding: 50px; font-family: Arial; font-size: 24px;">Access Denied<br><small>Developer tools are not allowed</small></div>';
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+
+      // Console warning
+      console.log('%cSTOP!', 'color: red; font-size: 50px; font-weight: bold;');
+      console.log('%cThis is a browser feature intended for developers. Unauthorized access is prohibited.', 'color: red; font-size: 16px;');
+    </script>
     <!--This will be placed at the before the head tag enclosure-->
   </head>
 
