@@ -34,7 +34,7 @@ class GalleryMapper {
         
         // Check for images from p1.jpg onwards
         while (imageNumber <= 50) { // Check up to p50.jpg
-            const imagePath = `Assets/p${imageNumber}.jpg`;
+            const imagePath = `Assets/Portfolio/p${imageNumber}.jpg`;
             const exists = await this.checkImageExists(imagePath);
             
             if (exists) {
