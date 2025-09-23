@@ -114,55 +114,20 @@
     <!-- Quote Modal -->
     <div id="quoteModal" class="modal">
       <div class="modal-content">
-        <div class="modal-header">
-          <h2>Get Your Free Quote</h2>
-          <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-          <form id="quoteForm">
-            <div class="form-group">
-              <label for="customerName">Full Name *</label>
-              <input type="text" id="customerName" name="customerName" required />
-            </div>
-            <div class="form-group">
-              <label for="customerEmail">Email Address *</label>
-              <input type="email" id="customerEmail" name="customerEmail" required />
-            </div>
-            <div class="form-group">
-              <label for="customerPhone">Phone Number *</label>
-              <input type="tel" id="customerPhone" name="customerPhone" required />
-            </div>
-            <div class="form-group">
-              <label for="projectType">Project Type *</label>
-              <select id="projectType" name="projectType" required>
-                <option value="">Select Project Type</option>
-                <option value="Kitchen Design">Kitchen Design</option>
-                <option value="Bedroom Design">Bedroom Design</option>
-                <option value="Living Room Design">Living Room Design</option>
-                <option value="Wardrobe Design">Wardrobe Design</option>
-                <option value="Complete Home Interior">Complete Home Interior</option>
-                <option value="Office Interior">Office Interior</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="projectBudget">Estimated Budget</label>
-              <select id="projectBudget" name="projectBudget">
-                <option value="">Select Budget Range</option>
-                <option value="Under 1 Lakh">Under ₹1 Lakh</option>
-                <option value="1-3 Lakhs">₹1-3 Lakhs</option>
-                <option value="3-5 Lakhs">₹3-5 Lakhs</option>
-                <option value="5-10 Lakhs">₹5-10 Lakhs</option>
-                <option value="Above 10 Lakhs">Above ₹10 Lakhs</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="projectDescription">Project Description *</label>
-              <textarea id="projectDescription" name="projectDescription" rows="4" placeholder="Tell us about your project requirements..." required></textarea>
-            </div>
-            <button type="submit" class="submit-btn">Send Quote Request</button>
-          </form>
-        </div>
+        <span class="close-modal">&times;</span>
+        <h2>Get Your Free Quote</h2>
+        <form id="quoteForm">
+          <input type="text" name="name" id="quoteFormName" placeholder="Name" required />
+          <input type="tel" name="phone" id="quoteFormPhone" placeholder="Phone No" required />
+          <input type="email" name="email" id="quoteFormEmail" placeholder="Email ID" required />
+          <textarea name="address" id="quoteFormAddress" placeholder="Property Location" required></textarea>
+          <input type="number" name="budget" id="quoteFormBudget" min="5000" placeholder="Budget" required />
+          <textarea name="message" id="quoteFormMessage" rows="4" placeholder="Leave your message (optional)"></textarea>
+          <button type="submit" id="quoteSubmitBtn">GET FREE QUOTE</button>
+          <p class="form-disclaimer">
+            By submitting this form, you agree to the privacy policy & terms and condition
+          </p>
+        </form>
       </div>
     </div>
 
@@ -174,38 +139,48 @@
       // Modal functionality
       const modal = document.getElementById("quoteModal");
       const btn = document.getElementById("quoteBtn");
-      const span = document.getElementsByClassName("close")[0];
+      const closeModal = document.querySelector('.close-modal');
 
-      btn.onclick = function() {
-        modal.style.display = "block";
-      }
+      // Open modal
+      btn.addEventListener('click', function() {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+      });
 
-      span.onclick = function() {
-        modal.style.display = "none";
-      }
+      // Close modal
+      closeModal.addEventListener('click', function() {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      });
 
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.classList.remove('show');
+          setTimeout(() => {
+            modal.style.display = 'none';
+          }, 300);
         }
-      }
+      });
 
       // Form submission
       document.getElementById('quoteForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const submitBtn = document.querySelector('.submit-btn');
+        const submitBtn = document.getElementById('quoteSubmitBtn');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
 
         const templateParams = {
-          customer_name: document.getElementById('customerName').value,
-          customer_email: document.getElementById('customerEmail').value,
-          customer_phone: document.getElementById('customerPhone').value,
-          project_type: document.getElementById('projectType').value,
-          project_budget: document.getElementById('projectBudget').value,
-          project_description: document.getElementById('projectDescription').value,
+          customer_name: document.getElementById('quoteFormName').value,
+          customer_email: document.getElementById('quoteFormEmail').value,
+          customer_phone: document.getElementById('quoteFormPhone').value,
+          customer_address: document.getElementById('quoteFormAddress').value,
+          customer_budget: document.getElementById('quoteFormBudget').value,
+          customer_message: document.getElementById('quoteFormMessage').value,
           submission_date: new Date().toLocaleDateString('en-IN'),
           submission_time: new Date().toLocaleTimeString('en-IN')
         };
@@ -214,7 +189,10 @@
           .then(function(response) {
             alert('Thank you! Your quote request has been sent successfully. We will contact you soon.');
             document.getElementById('quoteForm').reset();
-            modal.style.display = "none";
+            modal.classList.remove('show');
+            setTimeout(() => {
+              modal.style.display = 'none';
+            }, 300);
           }, function(error) {
             alert('Sorry, there was an error sending your request. Please try again or contact us directly.');
             console.error('EmailJS Error:', error);

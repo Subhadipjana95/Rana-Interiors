@@ -1073,7 +1073,8 @@ main {
     gap: 15px;
 }
 
-#quoteForm input {
+#quoteForm input,
+#quoteForm textarea {
     padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -1082,7 +1083,8 @@ main {
     transition: border-color 0.3s;
 }
 
-#quoteForm input:focus {
+#quoteForm input:focus,
+#quoteForm textarea:focus {
     border-color: var(--accent-color);
     outline: none;
 }
@@ -1102,6 +1104,14 @@ main {
 
 #quoteForm button:hover {
     background-color: #222;
+}
+
+.form-disclaimer {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: center;
+    margin-top: 10px;
+    line-height: 1.4;
 }
 
 /* Testimonials */
@@ -2113,6 +2123,7 @@ main {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     background-color: #fff;
+    height: 280px; /* Set container height to match image */
 }
 
 .gallery-item:hover {
@@ -2124,13 +2135,17 @@ main {
     display: block;
     position: relative;
     text-decoration: none;
+    height: 100%; /* Make link fill the container */
 }
 
 .gallery-item img {
     width: 100%;
-    height: 280px;
+    height: 100%; /* Fill the entire container */
     object-fit: cover;
     transition: transform 0.3s ease;
+    display: block; /* Remove default image spacing */
+    margin: 0; /* Remove any default margins */
+    padding: 0; /* Remove any default padding */
 }
 
 .gallery-item:hover img {
@@ -2247,8 +2262,12 @@ main {
         padding: 0 20px;
     }
     
+    .gallery-item {
+        height: 240px; /* Set container height for tablet */
+    }
+    
     .gallery-item img {
-        height: 240px;
+        height: 100%; /* Fill the container */
     }
     
     .view-all-btn {
@@ -2289,8 +2308,12 @@ main {
         padding: 0 15px;
     }
     
+    .gallery-item {
+        height: 200px; /* Set container height for mobile */
+    }
+    
     .gallery-item img {
-        height: 200px;
+        height: 100%; /* Fill the container */
     }
     
     .gallery-info h3 {

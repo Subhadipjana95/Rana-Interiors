@@ -8,21 +8,33 @@ class GalleryMapper {
     // Load gallery data from JSON file
     async loadGalleryData() {
         try {
+            console.log('Attempting to load gallery data from gallery-data.json...');
             const response = await fetch('./gallery-data.json');
+            console.log('Fetch response status:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             this.galleryData = await response.json();
+            console.log('Gallery data loaded successfully from JSON file:', this.galleryData.galleryItems.length, 'items');
             return this.galleryData;
         } catch (error) {
-            console.error('Error loading gallery data:', error);
-            return null;
+            console.error('Error loading gallery data from JSON file:', error);
+            console.error('Error details:', error.message);
+            throw error; // Re-throw to handle in calling function
         }
     }
 
     // Check if image file exists
     async checkImageExists(imagePath) {
         try {
+            console.log('Checking image:', imagePath);
             const response = await fetch(imagePath, { method: 'HEAD' });
+            console.log('Image check result:', imagePath, response.ok);
             return response.ok;
         } catch (error) {
+            console.log('Image check failed for:', imagePath, error.message);
             return false;
         }
     }
@@ -31,6 +43,7 @@ class GalleryMapper {
     async scanPortfolioImages() {
         const portfolioImages = [];
         let imageNumber = 1;
+        let consecutiveNotFound = 0;
         
         // Check for images from p1.jpg onwards
         while (imageNumber <= 50) { // Check up to p50.jpg
@@ -43,14 +56,19 @@ class GalleryMapper {
                     path: imagePath,
                     filename: `p${imageNumber}.jpg`
                 });
-            } else if (imageNumber > 35) {
-                // If we haven't found any images for 6 consecutive numbers after p35, stop
-                break;
+                consecutiveNotFound = 0; // Reset counter
+            } else {
+                consecutiveNotFound++;
+                // If we haven't found any images for 5 consecutive numbers after p10, stop
+                if (imageNumber > 10 && consecutiveNotFound >= 5) {
+                    break;
+                }
             }
             
             imageNumber++;
         }
         
+        console.log(`Found ${portfolioImages.length} portfolio images`);
         return portfolioImages;
     }
 
@@ -92,13 +110,16 @@ class GalleryMapper {
             // Load gallery data
             const galleryData = await this.loadGalleryData();
             if (!galleryData) {
-                console.error('Failed to load gallery data');
+                console.error('No gallery data available');
                 return null;
             }
 
             // Scan for portfolio images
             const portfolioImages = await this.scanPortfolioImages();
-            console.log(`Found ${portfolioImages.length} portfolio images`);
+            if (portfolioImages.length === 0) {
+                console.error('No portfolio images found');
+                return null;
+            }
 
             // Map data to images
             const mappedGallery = this.mapGalleryData(portfolioImages, galleryData);
@@ -108,6 +129,7 @@ class GalleryMapper {
                 .map(item => this.generateGalleryItemHTML(item, item.data))
                 .join('\n');
 
+            console.log(`Generated gallery HTML for ${mappedGallery.length} items`);
             return galleryHTML;
         } catch (error) {
             console.error('Error generating gallery HTML:', error);
@@ -117,33 +139,45 @@ class GalleryMapper {
 
     // Initialize gallery on page load
     async initializeGallery() {
-        // Find gallery container
-        this.galleryContainer = document.querySelector('.gallery-grid');
-        
-        if (!this.galleryContainer) {
-            console.error('Gallery container not found');
-            return;
-        }
+        try {
+            console.log('Initializing gallery...');
+            
+            // Find gallery container
+            this.galleryContainer = document.querySelector('.gallery-grid');
+            
+            if (!this.galleryContainer) {
+                console.error('Gallery container not found');
+                return;
+            }
+            
+            console.log('Gallery container found');
 
-        // Generate and insert gallery HTML
-        const galleryHTML = await this.generateGalleryHTML();
-        
-        if (galleryHTML) {
-            // Clear the container and add the gallery items
-            this.galleryContainer.innerHTML = '';
-            this.galleryContainer.innerHTML = galleryHTML;
+            // Generate and insert gallery HTML
+            const galleryHTML = await this.generateGalleryHTML();
             
-            console.log('Gallery successfully generated dynamically');
-            
-            // Ensure proper grid layout
-            this.galleryContainer.style.display = 'grid';
-            
-            // Reinitialize lightbox for the new dynamic content
-            this.initializeLightboxForDynamicContent();
-        } else {
-            console.error('Failed to generate gallery HTML');
-            // Show error message
-            this.galleryContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem;"><p>Error loading gallery. Please refresh the page.</p></div>';
+            if (galleryHTML) {
+                // Clear the container and add the gallery items
+                this.galleryContainer.innerHTML = '';
+                this.galleryContainer.innerHTML = galleryHTML;
+                
+                console.log('Gallery HTML successfully inserted');
+                console.log('Gallery successfully generated dynamically');
+                
+                // Ensure proper grid layout
+                this.galleryContainer.style.display = 'grid';
+                
+                // Reinitialize lightbox for the new dynamic content
+                this.initializeLightboxForDynamicContent();
+            } else {
+                console.error('Failed to generate gallery HTML');
+                // Show error message
+                this.galleryContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;"><p>Error loading gallery. Please refresh the page or check console for details.</p></div>';
+            }
+        } catch (error) {
+            console.error('Error in initializeGallery:', error);
+            if (this.galleryContainer) {
+                this.galleryContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #666;"><p>Error loading gallery. Please refresh the page.</p></div>';
+            }
         }
     }
 
